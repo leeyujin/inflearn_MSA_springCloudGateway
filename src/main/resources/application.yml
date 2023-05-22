@@ -11,14 +11,33 @@ eureka:
 spring:
   application:
     name: apigateway-service
-#  cloud:
-#    gateway:
-#      routes:
-#        - id: first-service
-#          uri: http://localhost:8081 # where to go
-#          predicates : # ???
-#            - Path= /first-service/**
-#        - id: second-service
-#          uri: http://localhost:8082 # where to go
-#          predicates: # ???
-#            - Path= /second-service/**
+  cloud:
+    gateway:
+      default-filters:
+        - name: GlobalFilter
+          args:
+            basemessage: Spring Cloud Gateway Global Filter
+            preLogger: true
+            postLogger: true
+      routes:
+        - id: first-service
+          uri: http://localhost:8081 # where to go
+          predicates :
+            - Path= /first-service/**
+          filters:
+#            - AddRequestHeader=first-request, first-requests-header2 # key, value
+#            - AddResponseHeader=first-response, first-response-header2
+             - CustomFilter
+        - id: second-service
+          uri: http://localhost:8082 # where to go
+          predicates:
+            - Path= /second-service/**
+          filters:
+#            - AddRequestHeader=second-request, second-requests-header2
+#            - AddResponseHeader=second-response, second-response-header2
+            - name: CustomFilter
+            - name: LoggingFilter
+              args:
+                basemessage: Hi, there.
+                preLogger: true
+                postLogger: true
